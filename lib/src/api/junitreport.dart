@@ -7,14 +7,19 @@ import 'package:junitreport/src/impl/report.dart';
 
 /// Transformer to convert a [Report] to an xml String.
 abstract class JUnitReport {
-  /// Creates a JUnitReport with the given [base] and [package].
+  /// Creates a JUnitReport with the given [base], [fileRelativeTo] and [package].
   ///
   /// In the [Report], the [Suite]s contain the path to the test files.
   ///
   /// To modify this path, [base] will be removed from it,
   /// and [package] will be prepended.
-  factory JUnitReport({String base = '', String package = ''}) =>
-      XmlReport(base, package);
+  ///
+  /// [Test]s contain the URI to the test file that starts with 'file://'.
+  ///
+  /// To convert this URI to a path, [fileRelativeTo] is used to calculate the
+  /// relative path.
+  factory JUnitReport({String base = '', String fileRelativeTo = '.', String package = ''}) =>
+      XmlReport(base, fileRelativeTo, package);
 
   /// Transforms the given [Reports] to an xml String.
   String toXml(Report report);

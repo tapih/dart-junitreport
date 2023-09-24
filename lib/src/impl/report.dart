@@ -7,6 +7,7 @@ import 'package:xml/xml.dart';
 import 'package:testreport/testreport.dart';
 import 'package:junitreport/junitreport.dart';
 import 'package:junitreport/src/impl/xml.dart';
+import 'package:path/path.dart' as p;
 
 class XmlReport implements JUnitReport {
   static final NumberFormat _milliseconds = NumberFormat('#####0.00#', 'en_US');
@@ -18,9 +19,10 @@ class XmlReport implements JUnitReport {
   static const Iterable<XmlNode> _noChildren = <XmlNode>[];
 
   final String base;
+  final String fileRelativeTo;
   final String package;
 
-  XmlReport(this.base, this.package);
+  XmlReport(this.base, this.fileRelativeTo, this.package);
 
   @override
   String toXml(Report report) {
@@ -45,12 +47,17 @@ class XmlReport implements JUnitReport {
         }
 
         _prints(test.prints, children);
+        final file = test.url != null ?
+          p.relative(Uri.parse(test.url!).path, from: fileRelativeTo) :
+          null;
 
         cases.add(elem(
             'testcase',
             <String, dynamic>{
               'classname': className,
               'name': test.name,
+              'file': file,
+              'line': test.line,
               'time': _milliseconds.format(test.duration / 1000.0)
             },
             children));

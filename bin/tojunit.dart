@@ -16,8 +16,11 @@ Future<void> main(List<String> args) async {
   final lines = LineSplitter().bind(utf8.decoder.bind(arguments.source));
   try {
     final report = await createReport(arguments, lines);
-    final xml = JUnitReport(base: arguments.base, package: arguments.package)
-        .toXml(report);
+    final xml = JUnitReport(
+      base: arguments.base,
+      fileRelativeTo: arguments.fileRelativeTo,
+      package: arguments.package,
+    ).toXml(report);
     arguments.target.write(xml);
   } catch (e) {
     stderr.writeln(e.toString());
@@ -56,6 +59,10 @@ if missing, <stdout> will be used''',
         abbr: 'b',
         help: "the part to strip from the 'path' elements in the source",
         defaultsTo: '')
+    ..addOption('fileRelativeTo',
+        abbr: 'r',
+        help: "the relative path to calculate the path defined in the 'file' element in the test from",
+        defaultsTo: '.')
     ..addOption(
       'package',
       abbr: 'p',
@@ -99,6 +106,7 @@ the timestamp to be used in the report
       target,
       timestamp,
       result['base'] as String,
+      result['fileRelativeTo'] as String,
       package,
     );
   } on FormatException catch (e) {
@@ -166,6 +174,7 @@ class Arguments {
   final IOSink target;
   final DateTime? timestamp;
   final String base;
+  final String fileRelativeTo;
   final String package;
 
   Arguments(
@@ -173,6 +182,7 @@ class Arguments {
     this.target,
     this.timestamp,
     this.base,
+    this.fileRelativeTo,
     this.package,
   );
 }
